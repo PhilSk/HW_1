@@ -29,7 +29,7 @@ public class SecondActivity extends AppCompatActivity {
             (counterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    for (int i = 0; i <= 3; ++i) {
+                    for (int i = 0; i <= 1000; ++i) {
                         try {
                             if (button.getText().equals("Start")) { // stop counting on pressing "Stop"
                                 return;
