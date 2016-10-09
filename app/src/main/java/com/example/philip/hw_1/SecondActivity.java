@@ -29,7 +29,7 @@ public class SecondActivity extends AppCompatActivity {
             (counterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    for (int i = 0; i <= 10; ++i)
+                    for (int i = 0; i <= 3; ++i) {
                         try {
                             if (button.getText().equals("Start")) { // stop counting on pressing "Stop"
                                 return;
@@ -47,6 +47,14 @@ public class SecondActivity extends AppCompatActivity {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            button.setText(R.string.start);
+                            tw.setText("");
+                        }
+                    });
                 }
             })).start();
         } else {
