@@ -27,44 +27,44 @@ public class SecondActivity extends AppCompatActivity {
         private final String[] to19 = {"", "один", "два", "три", "четыре",
                 "пять", "шесть", "семь", "восемь", "девять",
                 "десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
-                "пятнадцать", "шестнадцать", "семнадцать", "восемьнадцать", "девятнадцать"};
+                "пятнадцать", "шестнадцать", "семнадцать", "восемьнадцать", "девятнадцать", "ноль"};
         private final String[] to90 = {"", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят",
                 "семьдесят", "восемьдесят", "девяносто"};
         private final String[] to900 = {"", "сто", "двести", "триста", "четыреста", "пятьсот",
-                "шестьсот", "семьсот", "восемьсот", "девятьсот"};
+                "шестьсот", "семьсот", "восемьсот", "девятьсот", "тысяча"};
         private final String thousand = "тысяча";
-        private String[] components = {"", "", "", ""};
+        private String[] components = {"", "", ""};
         private int to19index = 0;
         private int to90index = 0;
         private int to900index = 0;
-        private boolean isfullcycle = false;
-        private boolean iszero = false;
+        private boolean isFullCycle = false;
+        private boolean isBegin = false;
 
         NumberMakerToThousand(int init) throws BadInitException {
             if (init <= 1000 && init >= 0) {
                 if (init == 1000) {
-                    isfullcycle = true;
+                    to900index = 10; //тысяча
                 } else {
-                    if (init != 0) {
+                    if (init == 0) {
+                        to19index = 20; //ноль
+                    } else {
                         int hundreds = init / 100;
                         if (hundreds != 0) {
                             to900index = hundreds;
-                            components[1] = to900[to900index];
+                            components[0] = to900[to900index];
                         }
                         int residue = init % 100;
                         if (residue < 20 && residue != 0) {
                             to19index = residue;
-                            components[3] = to19[to19index];
+                            components[2] = to19[to19index];
                         } else {
                             int tens = residue / 10;
                             residue %= 10;
                             to90index = tens - 1;
-                            components[2] = to90[to90index];
+                            components[1] = to90[to90index];
                             to19index = residue;
-                            components[3] = to19[to19index];
+                            components[2] = to19[to19index];
                         }
-                    } else {
-                        iszero = true;
                     }
                 }
             } else {
@@ -73,41 +73,39 @@ public class SecondActivity extends AppCompatActivity {
         }
 
         public String showNumber() {
-            if (isfullcycle) {
-                return thousand;
-            }
-            if (iszero) {
-                iszero = false;
-                return zero;
-            }
             StringBuilder res = new StringBuilder();
-            for (int i = 0; i < 4; i++) {
+            components[0] = to900[to900index];
+            components[1] = to90[to90index];
+            components[2] = to19[to19index];
+            for (int i = 0; i < 3; i++) {
                 if (!components[i].isEmpty()) {
-                    res.append(components[i] + " ");
+                    res.append(components[i]).append(" ");
                 }
             }
             return res.toString();
         }
 
         public void next() {
-            if (isfullcycle) {
-                iszero = true;
-                isfullcycle = false;
+            if (to19index == 20) { //если было значение ноль,
+                to19index = 0;
             }
-            if (!iszero) {
-                if (to90index == 0) {
-                    to19index = (to19index + 1) % 20;
-                } else {
-                    to19index = (to19index + 1) % 10;
-                }
+            if (to900index == 10) { //если предыдущее значение было тысяча, то следующее это 0
+                to900index = 0;
+                to19index = 20;
+                return;
+            }
+            if (to90index == 0) {
+                to19index = (to19index + 1) % 20; //если число десятков меньше 2
+            } else {
+                to19index = (to19index + 1) % 10;
             }
             if (to19index == 0) {
-                to90index = (to90index + 1) % 10;
+                to90index = (to90index + 1) % 9;
                 if (to90index == 0) {
                     to900index = (to900index + 1) % 10;
-                }
-                if (to900index == 0) {
-                    isfullcycle = true;
+                    if (to900index == 0) {
+                        to900index = 10;
+                    }
                 }
             }
         }
@@ -139,12 +137,12 @@ public class SecondActivity extends AppCompatActivity {
             (counterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    for (int i = 0; i <= 1000; ++i) {
-                        try {
+                    try {
+                        final NumberMakerToThousand counter = new NumberMakerToThousand(0);
+                        for (int i = 0; i <= 1000; i++) {
                             if (button.getText().equals("Start")) { // stop counting on pressing "Stop"
                                 return;
                             } else {
-                                final NumberMakerToThousand counter = new NumberMakerToThousand(0);
                                 Thread.sleep(1000);
                                 runOnUiThread(new Runnable() {
                                     @Override
@@ -155,9 +153,9 @@ public class SecondActivity extends AppCompatActivity {
                                 });
                                 counter.next();
                             }
-                        } catch (InterruptedException | NumberMakerToThousand.BadInitException e) {
-                            e.printStackTrace();
                         }
+                    }catch(InterruptedException | NumberMakerToThousand.BadInitException e) {
+                        e.printStackTrace();
                     }
                     runOnUiThread(new Runnable() {
                         @Override
