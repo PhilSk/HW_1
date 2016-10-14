@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
 public class SecondActivity extends AppCompatActivity {
 
     Button button;
@@ -55,37 +56,42 @@ public class SecondActivity extends AppCompatActivity {
                   button.setText(R.string.stop);
                 }
             });
-
-            (counterThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i <= 1000; ++i) {
-                        try {
-                            if (!button_bool.get()) { // stop counting on pressing "Stop"
-                                return;
-                            } else {
-                                final int counter = i;
-                                Thread.sleep(1000);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        tw.setText(String.valueOf(counter));
-                                    }
-                                });
+            try {
+                final NumberMakerToThousand counter = new NumberMakerToThousand(0);
+                (counterThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i <= 1000; ++i) {
+                            try {
+                                if (!button_bool.get()) { // stop counting on pressing "Stop"
+                                    return;
+                                } else {
+                                    Thread.sleep(1000);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            tw.setText(counter.next().showNumber());
+                                        }
+                                    });
+                                }
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
                         }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                button.setText(R.string.start);
+                                tw.setText("");
+                            }
+                        });
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            button.setText(R.string.start);
-                            tw.setText("");
-                        }
-                    });
-                }
-            })).start();
+                })).start();
+
+            } catch (NumberMakerToThousand.BadInitException e) {
+                e.printStackTrace();
+            }
+
         } else {
             runOnUiThread(new Runnable() {
                 @Override
