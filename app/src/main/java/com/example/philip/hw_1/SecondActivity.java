@@ -25,8 +25,8 @@ public class SecondActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        if (counterThread != null) {
+    protected void onPause() {
+        if (counterThread.isAlive()) {
             counterThread.interrupt();
         }
         super.onStop();
@@ -100,7 +100,7 @@ public class SecondActivity extends AppCompatActivity {
                     tw.setText("");
                 }
             });
-            if (counterThread != null) {
+            if (counterThread.isAlive()) {
                 counterThread.interrupt();
             }
         }
