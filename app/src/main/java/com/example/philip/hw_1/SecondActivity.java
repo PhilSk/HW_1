@@ -26,10 +26,12 @@ public class SecondActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        if (counterThread.isAlive()) {
-            counterThread.interrupt();
+        if (counterThread != null) {
+            if (counterThread.isAlive()) {
+                counterThread.interrupt();
+            }
         }
-        super.onStop();
+        super.onPause();
     }
 
     private boolean button_checker() {
@@ -100,8 +102,10 @@ public class SecondActivity extends AppCompatActivity {
                     tw.setText("");
                 }
             });
-            if (counterThread.isAlive()) {
-                counterThread.interrupt();
+            if (counterThread != null) {
+                if (counterThread.isAlive()) {
+                    counterThread.interrupt();
+                }
             }
         }
     }
